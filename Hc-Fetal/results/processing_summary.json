@@ -1,0 +1,11 @@
+{
+  "total_processed": 10,
+  "successful": 10,
+  "failed": 0,
+  "success_rate": 100.0,
+  "mean_absolute_error_mm": 0.4878425891144829,
+  "std_absolute_error_mm": 0.13877849838905804,
+  "mean_relative_error_percent": 0.622400586710419,
+  "max_error_mm": 0.6473735610658053,
+  "min_error_mm": 0.3198167664633189
+}

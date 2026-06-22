@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetal Head Circumference Measurement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .upload-section {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        
+        .upload-section:hover {
+            border-color: #764ba2;
+            background: #f8f9ff;
+        }
+        
+        .upload-section.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        
+        .file-label:hover {
+            transform: scale(1.05);
+        }
+        
+        .file-info {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #666;
+        }
+        
+        .pixel-spacing-input {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .pixel-spacing-input input {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 200px;
+            margin: 0 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .result-card {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .result-value {
+            color: #333;
+        }
+        
+        .hc-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .hc-result h2 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .download-links {
+            margin-top: 20px;
+        }
+        
+        .download-links a {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .download-links a:hover {
+            background: #764ba2;
+        }
+        
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+        }
+        
+        .btn-cancel {
+            background: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🩺 Fetal Head Circumference</h1>
+            <p>Upload DICOM, PNG, or JPG ultrasound images for automatic measurement</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-section" id="uploadSection">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" class="file-input" accept=".dcm,.dicom,.png,.jpg,.jpeg">
+                    <label for="fileInput" class="file-label">
+                        📁 Choose File or Drag & Drop
+                    </label>
+                </div>
+                <div class="file-info" id="fileInfo"></div>
+                
+                <div class="pixel-spacing-input" id="pixelSpacingInput">
+                    <p><strong>Pixel spacing not found in image metadata.</strong></p>
+                    <p>Please enter pixel spacing (mm/pixel):</p>
+                    <input type="number" id="pixelSpacingValue" step="0.0001" placeholder="e.g., 0.0691">
+                    <button class="btn" onclick="submitPixelSpacing()">Submit</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing image...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="results" id="results">
+                <div class="hc-result">
+                    <h2 id="hcValue">-- mm</h2>
+                    <p>Head Circumference</p>
+                </div>
+                
+                <div class="result-card">
+                    <h3>📊 Measurement Details</h3>
+                    <div class="result-item">
+                        <span class="result-label">Model Confidence:</span>
+                        <span class="result-value" id="confidence">--</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Pixel Spacing:</span>
+                        <span class="result-value" id="pixelSpacing">--</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">File Type:</span>
+                        <span class="result-value" id="fileType">--</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Original File:</span>
+                        <span class="result-value" id="originalFile">--</span>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h3>🖼️ Prediction Visualization</h3>
+                    <div class="image-preview">
+                        <img id="predictionImage" src="" alt="Prediction">
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h3>📥 Download Files</h3>
+                    <div class="download-links" id="downloadLinks"></div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <a href="/api/download_results_csv" style="background: #5cb85c;">📊 Download All Results CSV</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Patient ID Modal -->
+    <div id="patientIdModal" class="modal">
+        <div class="modal-content">
+            <h3>Generate PDF Report</h3>
+            <p>Enter Patient ID (optional):</p>
+            <input type="text" id="patientIdInput" placeholder="e.g., HC18_023">
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closePatientIdDialog()">Cancel</button>
+                <button class="btn" onclick="generatePdfWithPatientId()">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let sessionId = null;
+        
+        // File input handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('uploadSection');
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+        
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            document.getElementById('fileInfo').textContent = `Selected: ${file.name}`;
+            uploadFile(file);
+        }
+        
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            showLoading();
+            hideError();
+            hideResults();
+            
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.status === 'needs_pixel_spacing') {
+                    sessionId = data.session_id;
+                    document.getElementById('pixelSpacingInput').style.display = 'block';
+                } else if (data.status === 'success') {
+                    sessionId = data.session_id;
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Error uploading file: ' + error.message);
+            });
+        }
+        
+        function submitPixelSpacing() {
+            const pixelSpacing = parseFloat(document.getElementById('pixelSpacingValue').value);
+            
+            if (!pixelSpacing || pixelSpacing <= 0) {
+                showError('Please enter a valid pixel spacing value');
+                return;
+            }
+            
+            showLoading();
+            hideError();
+            
+            fetch('/api/set_pixel_spacing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    pixel_spacing: pixelSpacing
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.status === 'success') {
+                    document.getElementById('pixelSpacingInput').style.display = 'none';
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Error processing: ' + error.message);
+            });
+        }
+        
+        function displayResults(data) {
+            // Handle both formats: head_circumference_mm (original) and hc_estimate (lite version)
+            const hc_value = data.head_circumference_mm || data.hc_estimate || 'N/A';
+            document.getElementById('hcValue').textContent = 
+                hc_value && hc_value !== 'N/A' ? hc_value.toFixed(2) + ' mm' : 'N/A';
+            
+            // Display confidence with color coding
+            const confidenceElem = document.getElementById('confidence');
+            if (data.confidence && data.confidence.confidence_percentage !== undefined) {
+                const confPercent = data.confidence.confidence_percentage;
+                confidenceElem.textContent = confPercent.toFixed(1) + '%';
+                
+                // Color code based on confidence level
+                if (confPercent >= 80) {
+                    confidenceElem.style.color = '#28a745';  // Green
+                    confidenceElem.style.fontWeight = 'bold';
+                } else if (confPercent >= 60) {
+                    confidenceElem.style.color = '#ffc107';  // Yellow
+                    confidenceElem.style.fontWeight = 'bold';
+                } else {
+                    confidenceElem.style.color = '#ff6b6b';  // Red
+                    confidenceElem.style.fontWeight = 'bold';
+                }
+            } else {
+                confidenceElem.textContent = 'N/A';
+                confidenceElem.style.color = '';
+                confidenceElem.style.fontWeight = '';
+            }
+            
+            // Handle pixel spacing from different sources
+            const pixel_spacing = data.pixel_spacing || (data.file_info && data.file_info.pixel_spacing ? data.file_info.pixel_spacing[0] : null);
+            document.getElementById('pixelSpacing').textContent = 
+                pixel_spacing ? (Array.isArray(pixel_spacing) ? pixel_spacing[0].toFixed(4) : pixel_spacing.toFixed(4)) + ' mm/pixel' : 'N/A';
+            
+            document.getElementById('fileType').textContent = data.file_type || 'N/A';
+            document.getElementById('originalFile').textContent = data.filename || data.original_file || 'N/A';
+            
+            if (data.prediction_image) {
+                // Add timestamp to prevent caching
+                const timestamp = new Date().getTime();
+                document.getElementById('predictionImage').src = 
+                    `/api/download/${sessionId}/${data.prediction_image}?t=${timestamp}`;
+            }
+            
+            // Download links
+            const downloadLinks = document.getElementById('downloadLinks');
+            downloadLinks.innerHTML = '';
+            
+            if (data.metadata_csv) {
+                downloadLinks.innerHTML += 
+                    `<a href="/api/download/${sessionId}/${data.metadata_csv}">📄 Metadata CSV</a>`;
+            }
+            
+            if (data.prediction_image) {
+                downloadLinks.innerHTML += 
+                    `<a href="/api/download/${sessionId}/${data.prediction_image}">🖼️ Prediction Image</a>`;
+            }
+            
+            if (data.converted_image) {
+                downloadLinks.innerHTML += 
+                    `<a href="/api/download/${sessionId}/${data.converted_image}">🔄 Converted PNG</a>`;
+            }
+            
+            // Add button to generate PDF with patient ID
+            downloadLinks.innerHTML += 
+                `<button onclick="showPatientIdDialog()" class="btn" style="display: inline-block; margin: 5px;">📋 Generate PDF Report</button>`;
+            
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        function showPatientIdDialog() {
+            document.getElementById('patientIdModal').style.display = 'block';
+        }
+        
+        function closePatientIdDialog() {
+            document.getElementById('patientIdModal').style.display = 'none';
+        }
+        
+        function generatePdfWithPatientId() {
+            const patientId = document.getElementById('patientIdInput').value || 'PATIENT';
+            
+            closePatientIdDialog();
+            showLoading();
+            
+            fetch('/api/generate_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    patient_id: patientId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                
+                if (data.status === 'success') {
+                    // Add download link for the generated PDF
+                    const downloadLinks = document.getElementById('downloadLinks');
+                    const pdfLink = document.createElement('a');
+                    pdfLink.href = `/api/download/${sessionId}/${data.pdf_report}`;
+                    pdfLink.style.background = '#d9534f';
+                    pdfLink.textContent = '📋 Download PDF Report';
+                    downloadLinks.appendChild(pdfLink);
+                    
+                    // Clear input for next time
+                    document.getElementById('patientIdInput').value = '';
+                } else {
+                    showError(data.error || 'Failed to generate PDF');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Error generating PDF: ' + error.message);
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('patientIdModal');
+            if (event.target == modal) {
+                closePatientIdDialog();
+            }
+        }
+    </script>
+</body>
+</html>
