@@ -3,7 +3,7 @@ services:
     name: hc-fetal-webapp
     env: docker
     branch: main
-    dockerfilePath: Hc-Fetal/webapp/Dockerfile
+  dockerfilePath: Dockerfile
     # Let Dockerfile handle build and start. Ensure Render routes to port 5000.
     plan: starter
     envVars:
