@@ -27,6 +27,9 @@ RUN pip uninstall -y torch torchvision || true && \
 RUN pip install --no-cache-dir segmentation-models-pytorch --no-deps && \
     pip install --no-cache-dir timm --no-deps
 
+# Use gunicorn as production WSGI server so the host platform can detect the open HTTP port
+RUN pip install --no-cache-dir gunicorn
+
 # Copy app and src
 COPY Hc-Fetal/webapp/ /app/
 COPY Hc-Fetal/src/ /app/src/
@@ -38,4 +41,5 @@ EXPOSE 5000
 ENV FLASK_APP=app.py
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "app.py"]
+# Use gunicorn and bind to the PORT env var set by Render (fallback to 5000)
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} app:app --workers 1"]
