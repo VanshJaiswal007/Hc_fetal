@@ -436,10 +436,24 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+                    });
+                }
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        // Provide clearer message when response is not valid JSON
+                        throw new Error(`Invalid JSON response (HTTP ${response.status}): ${text}`);
+                    }
+                });
+            })
             .then(data => {
                 hideLoading();
-                
+
                 if (data.status === 'needs_pixel_spacing') {
                     sessionId = data.session_id;
                     document.getElementById('pixelSpacingInput').style.display = 'block';
@@ -452,6 +466,7 @@
             })
             .catch(error => {
                 hideLoading();
+                console.error('Upload error:', error);
                 showError('Error uploading file: ' + error.message);
             });
         }
@@ -477,10 +492,17 @@
                     pixel_spacing: pixelSpacing
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(`HTTP ${response.status}: ${text || response.statusText}`); });
+                }
+                return response.text().then(text => {
+                    try { return JSON.parse(text); } catch (e) { throw new Error(`Invalid JSON response (HTTP ${response.status}): ${text}`); }
+                });
+            })
             .then(data => {
                 hideLoading();
-                
+
                 if (data.status === 'success') {
                     document.getElementById('pixelSpacingInput').style.display = 'none';
                     displayResults(data);
@@ -490,6 +512,7 @@
             })
             .catch(error => {
                 hideLoading();
+                console.error('Set pixel spacing error:', error);
                 showError('Error processing: ' + error.message);
             });
         }
@@ -610,10 +633,17 @@
                     patient_id: patientId
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(`HTTP ${response.status}: ${text || response.statusText}`); });
+                }
+                return response.text().then(text => {
+                    try { return JSON.parse(text); } catch (e) { throw new Error(`Invalid JSON response (HTTP ${response.status}): ${text}`); }
+                });
+            })
             .then(data => {
                 hideLoading();
-                
+
                 if (data.status === 'success') {
                     // Add download link for the generated PDF
                     const downloadLinks = document.getElementById('downloadLinks');
@@ -631,6 +661,7 @@
             })
             .catch(error => {
                 hideLoading();
+                console.error('Generate PDF error:', error);
                 showError('Error generating PDF: ' + error.message);
             });
         }
